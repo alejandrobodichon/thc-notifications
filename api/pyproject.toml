@@ -1,0 +1,38 @@
+[project]
+name = "take-home-challenge-notifications"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+authors = [{ name = "Alejandro Bodichon" }]
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.19.1",
+    "fastapi[standard]>=0.141.1",
+    "psycopg[binary]>=3.3.4",
+    "pwdlib[argon2]>=0.3.1",
+    "pydantic-settings>=2.15.0",
+    "pyjwt>=2.13.0",
+    "sqlalchemy[asyncio]>=2.0.51",
+]
+
+[dependency-groups]
+dev = [
+    "coveralls>=4.1.0",
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.2",
+]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "ASYNC"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+omit = ["tests/*"]

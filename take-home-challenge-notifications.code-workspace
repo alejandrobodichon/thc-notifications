@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "sms-service"
+		},
+		{
+			"path": "api"
+		}
+	],
+	"settings": {}
+}
