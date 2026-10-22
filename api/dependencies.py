@@ -24,6 +24,7 @@ from services.user_service import UserService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
+
 def get_user_repository(db: Annotated[AsyncSession, Depends(get_db)]) -> UserRepository:
     return UserRepository(db)
 
@@ -33,11 +34,12 @@ def get_user_service(
 ) -> UserService:
     return UserService(repo)
 
+
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 
 def get_notification_repository(
-        db: Annotated[AsyncSession, Depends(get_db)]
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> NotificationRepository:
     return NotificationRepository(db)
 
@@ -47,7 +49,9 @@ def get_auth_service(
 ) -> AuthService:
     return AuthService(repo)
 
+
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
 
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
@@ -61,10 +65,13 @@ async def get_current_user(
         raise NotAuthenticated()
     return user
 
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
 
 def get_sms_publisher(request: Request) -> SmsQueuePublisher:
     return request.app.state.sms_publisher
+
 
 SmsPublisherDep = Annotated[SmsQueuePublisher, Depends(get_sms_publisher)]
 
@@ -76,9 +83,9 @@ def get_channel_registry(sms_publisher: SmsPublisherDep) -> dict[Channel, Notifi
         Channel.SMS: SmsNotificationStrategy(sms_publisher),
     }
 
-ChannelRegistryDep = Annotated[
-    dict[Channel, NotificationStrategy], Depends(get_channel_registry)
-]
+
+ChannelRegistryDep = Annotated[dict[Channel, NotificationStrategy], Depends(get_channel_registry)]
+
 
 def get_notification_service(
     repo: Annotated[NotificationRepository, Depends(get_notification_repository)],
@@ -86,10 +93,13 @@ def get_notification_service(
 ) -> NotificationService:
     return NotificationService(repo, registry)
 
+
 NotificationServiceDep = Annotated[NotificationService, Depends(get_notification_service)]
+
 
 def verify_internal_api_key(x_api_key: Annotated[str, Header()]) -> None:
     if not secrets.compare_digest(x_api_key, settings.internal_api_key):
         raise NotAuthenticated()
+
 
 InternalApiKeyDep = Annotated[None, Depends(verify_internal_api_key)]

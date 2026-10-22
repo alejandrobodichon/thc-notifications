@@ -14,13 +14,10 @@ class DeliveryResult:
     sent_at: datetime | None = None
     error: str | None = None
 
-    
+
 class NotificationStrategy(ABC):
     @abstractmethod
     def validate(self, channel_data: dict[str, Any]) -> dict[str, Any]: ...
 
     @abstractmethod
     async def send_notification(self, notification: Notification) -> DeliveryResult: ...
-
-
-

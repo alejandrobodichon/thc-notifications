@@ -1,9 +1,7 @@
 import os
 from collections.abc import AsyncGenerator
 
-os.environ.setdefault(
-    "DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost/test_thc"
-)
+os.environ.setdefault("DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost/test_thc")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-at-least-32-bytes-long")
 os.environ.setdefault("SQS_ENDPOINT_URL", "http://localhost:9324")
 os.environ.setdefault("INTERNAL_API_KEY", "test-internal-api-key")

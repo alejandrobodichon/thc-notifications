@@ -115,9 +115,7 @@ async def test_delivery_update_without_api_key(client: AsyncClient):
 
 
 @pytest.mark.anyio
-async def test_delivery_update_does_not_accept_user_token(
-    client: AsyncClient, auth_headers: dict
-):
+async def test_delivery_update_does_not_accept_user_token(client: AsyncClient, auth_headers: dict):
     notification_id = await create_pending_sms(client, auth_headers)
 
     response = await client.post(

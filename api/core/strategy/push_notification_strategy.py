@@ -1,4 +1,3 @@
-
 from datetime import datetime
 
 from alembic.environment import Any
@@ -18,7 +17,6 @@ class PushNotificationStrategy(NotificationStrategy):
         except ValidationError as e:
             raise InvalidChannelData() from e
         return data.model_dump()
-    
-    
+
     async def send_notification(self, notification: Notification) -> DeliveryResult:
         return DeliveryResult(status=DeliveryStatus.SENT, sent_at=datetime.now())

@@ -1,4 +1,3 @@
-
 import logging
 from typing import Any
 
@@ -13,6 +12,7 @@ from schemas.notification import SmsChannelData
 
 SMS_MAX_LENGTH = 160
 logger = logging.getLogger(__name__)
+
 
 class SmsNotificationStrategy(NotificationStrategy):
     def __init__(self, publisher: SmsQueuePublisher):
@@ -32,9 +32,7 @@ class SmsNotificationStrategy(NotificationStrategy):
             await self._publisher.publish(notification.id, phone, message)
         except SmsQueueUnavailable:
             logger.warning(
-                "Could not enqueue SMS for notification %s", 
-                notification.id, 
-                exc_info=True
+                "Could not enqueue SMS for notification %s", notification.id, exc_info=True
             )
             return DeliveryResult(status=DeliveryStatus.FAILED, error="SMS queue unavailable")
         logger.info("SMS queued for notification %s", notification.id)

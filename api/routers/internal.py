@@ -1,5 +1,3 @@
-
-
 from fastapi import APIRouter
 
 from dependencies import InternalApiKeyDep, NotificationServiceDep

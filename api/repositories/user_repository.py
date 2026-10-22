@@ -18,17 +18,14 @@ class UserRepository:
         result = await self._session.execute(select(User).where(User.email == email))
         return result.first() is not None
 
-
     async def get_all(self) -> list[User]:
         result = await self._session.execute(select(User))
         users = list(result.scalars())
         return users
-    
 
     async def get_by_id(self, user_id: int) -> User | None:
         return await self._session.get(User, user_id)
 
-    
     async def get_by_username(self, username: str) -> User | None:
         return await self._session.scalar(select(User).where(User.username == username))
 
@@ -41,8 +38,6 @@ class UserRepository:
             raise UserAlreadyExists() from e
         await self._session.refresh(user)
         return user
-
-
 
     async def delete(self, user: User) -> None:
         await self._session.delete(user)

@@ -14,6 +14,7 @@ from routers import auth, internal, notifications, users
 
 session = aioboto3.Session()
 
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     async with session.client(
@@ -24,9 +25,10 @@ async def lifespan(_app: FastAPI):
         aws_secret_access_key="local",
     ) as sqs:
         queue = await sqs.get_queue_url(QueueName=settings.sms_queue_name)
-        app.state.sms_publisher = SmsQueuePublisher(sqs, queue["QueueUrl"])        
+        app.state.sms_publisher = SmsQueuePublisher(sqs, queue["QueueUrl"])
         yield
         await engine.dispose()
+
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app)
@@ -35,6 +37,7 @@ app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
 app.include_router(internal.router, prefix="/internal", tags=["internal"], include_in_schema=False)
+
 
 @app.get("/health")
 async def health_check(db: Annotated[AsyncSession, Depends(get_db)]):
@@ -46,6 +49,7 @@ async def health_check(db: Annotated[AsyncSession, Depends(get_db)]):
             detail="Database unavailable",
         ) from exc
     return {"status": "healthy"}
+
 
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
@@ -59,8 +63,6 @@ async def add_security_headers(request: Request, call_next):
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
     if request.url.hostname not in ("localhost", "127.0.0.1"):
-        response.headers["Strict-Transport-Security"] = (
-            "max-age=63072000; includeSubDomains"
-        )
+        response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains"
 
     return response

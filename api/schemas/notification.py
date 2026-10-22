@@ -30,16 +30,18 @@ class NotificationPublic(NotificationBase):
     created_at: datetime
     sent_at: datetime | None
 
-    
 
 class SmsChannelData(BaseModel):
     phone_number: str = Field(pattern=r"^\+[1-9]\d{7,14}$")
 
+
 class EmailChannelData(BaseModel):
     email: EmailStr
 
+
 class PushChannelData(BaseModel):
     device_token: str = Field(min_length=32, max_length=256)
+
 
 class DeliveryUpdate(BaseModel):
     status: DeliveryStatus
