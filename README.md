@@ -4,7 +4,7 @@ Users CRUD integrated with [PokeAPI](https://pokeapi.co). Each user can own Pok√
 
 ## Badges
 
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/alejandrobodichon/fastapi-take-home-challenge/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/alejandrobodichon/fastapi-take-home-challenge/tree/master) [![Coverage Status](https://coveralls.io/repos/github/alejandrobodichon/fastapi-take-home-challenge/badge.svg?branch=master)](https://coveralls.io/github/alejandrobodichon/fastapi-take-home-challenge?branch=master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/alejandrobodichon/thc-notifications/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/alejandrobodichon/thc-notifications/tree/main) [![Coverage Status](https://coveralls.io/repos/github/alejandrobodichon/thc-notifications/badge.svg?branch=main)](https://coveralls.io/github/alejandrobodichon/thc-notifications?branch=main)
 
 ## Decisions taken
 
