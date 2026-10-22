@@ -1,10 +1,9 @@
 version: 2.1
 orbs:
   python: circleci/python@4.0.0
-  coveralls: coveralls/coveralls@2.2.5
 
 jobs:
-  build_and_test: 
+  test_api:
     docker:
       - image: cimg/python:3.14
       - image: postgres:17-alpine
@@ -16,30 +15,61 @@ jobs:
       - checkout
       - python/install-packages:
           pkg-manager: uv
+          app-dir: api
+      - run:
+          name: Lint
+          working_directory: api
+          command: |
+            uv run ruff check .
+            uv run ruff format --check .
+      - run:
+          name: Type check
+          working_directory: api
+          command: uv run mypy .
       - run:
           name: Wait for Postgres
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run:
           name: Run tests
+          working_directory: api
           command: uv run pytest --cov=. --cov-report=term-missing
       - run:
           name: Upload coverage to Coveralls
+          working_directory: api
           command: uv run coveralls
-    
-  build_image:
+
+  test_sms_worker:
+    docker:
+      - image: cimg/python:3.14
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: uv
+          app-dir: sms-service
+      - run:
+          name: Run tests
+          working_directory: sms-service
+          command: uv run pytest
+
+  build_images:
     docker:
       - image: cimg/base:current
     steps:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build Docker image
-          command: docker build -t thc-app:${CIRCLE_SHA1} .
+          name: Build API image
+          command: docker build -t thc-api:${CIRCLE_SHA1} ./api
+      - run:
+          name: Build SMS worker image
+          command: docker build -t thc-sms-worker:${CIRCLE_SHA1} ./sms-service
 
 workflows:
-  build_test_deploy: 
+  build_test_deploy:
     jobs:
-      - build_and_test
-      - build_image:
+      - test_api
+      - test_sms_worker
+      - build_images:
           requires:
-            - build_and_test
+            - test_api
+            - test_sms_worker
