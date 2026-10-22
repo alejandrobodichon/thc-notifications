@@ -6,7 +6,10 @@ from core.exceptions import (
     ConflictError,
     ExternalServiceError,
     ForbiddenError,
+    InvalidChannelData,
     NotFoundError,
+    UnauthorizedError,
+    UnprocessableError,
 )
 
 
@@ -23,5 +26,8 @@ STATUS_BY_ERROR: dict[type[AppError], int] = {
     ConflictError: 409, 
     ForbiddenError: 403, 
     NotFoundError: 404,
-    ExternalServiceError: 502
+    ExternalServiceError: 502,
+    UnprocessableError: 422,
+    UnauthorizedError: 401,
+    InvalidChannelData: 422,
 }

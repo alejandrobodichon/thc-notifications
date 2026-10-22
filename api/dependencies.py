@@ -1,12 +1,13 @@
+import secrets
 from typing import Annotated
 
-import httpx
-from fastapi import Depends, Request
+from fastapi import Depends, Header, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from clients.sms_client import SmsClient
+from clients.sms_queue_publisher import SmsQueuePublisher
 from core.auth import verify_access_token
+from core.config import settings
 from core.database import get_db
 from core.enums import Channel
 from core.exceptions import NotAuthenticated
@@ -22,11 +23,6 @@ from services.notification_service import NotificationService
 from services.user_service import UserService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
-
-def get_http_client(request: Request) -> httpx.AsyncClient:
-    return request.app.state.http_client
-
-HttpClientDep = Annotated[httpx.AsyncClient, Depends(get_http_client)]
 
 def get_user_repository(db: Annotated[AsyncSession, Depends(get_db)]) -> UserRepository:
     return UserRepository(db)
@@ -65,22 +61,17 @@ async def get_current_user(
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
-def get_sms_http(request: Request) -> httpx.AsyncClient:
-    return request.app.state.sms_http
+def get_sms_publisher(request: Request) -> SmsQueuePublisher:
+    return request.app.state.sms_publisher
 
-SmsHttpDep = Annotated[httpx.AsyncClient, Depends(get_sms_http)]
+SmsPublisherDep = Annotated[SmsQueuePublisher, Depends(get_sms_publisher)]
 
 
-def get_sms_client(http: SmsHttpDep) -> SmsClient:
-    return SmsClient(http)
-
-SmsClientDep = Annotated[SmsClient, Depends(get_sms_client)]
-
-def get_channel_registry(sms_client: SmsClientDep) -> dict[Channel, NotificationStrategy]:
+def get_channel_registry(sms_publisher: SmsPublisherDep) -> dict[Channel, NotificationStrategy]:
     return {
         Channel.EMAIL: EmailNotificationStrategy(),
         Channel.PUSH: PushNotificationStrategy(),
-        Channel.SMS: SmsNotificationStrategy(sms_client),
+        Channel.SMS: SmsNotificationStrategy(sms_publisher),
     }
 
 ChannelRegistryDep = Annotated[
@@ -94,3 +85,9 @@ def get_notification_service(
     return NotificationService(repo, registry)
 
 NotificationServiceDep = Annotated[NotificationService, Depends(get_notification_service)]
+
+def verify_internal_api_key(x_api_key: Annotated[str, Header()]) -> None:
+    if not secrets.compare_digest(x_api_key, settings.internal_api_key):
+        raise NotAuthenticated()
+
+InternalApiKeyDep = Annotated[None, Depends(verify_internal_api_key)]

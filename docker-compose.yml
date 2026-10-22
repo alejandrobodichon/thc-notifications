@@ -14,6 +14,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  elasticmq:
+    image: softwaremill/elasticmq-native:1.6.9
+    ports:
+      - "9324:9324"   # SQS API
+      - "9325:9325"   # web UI
+    volumes:
+      - ./elasticmq.conf:/opt/elasticmq.conf:ro
+
   migrate:
     build: ./api
     image: thc-notification-app
@@ -33,9 +42,31 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@db/thc_notifications
+      SQS_ENDPOINT_URL: http://elasticmq:9324
+      SMS_QUEUE_NAME: sms-notifications
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?Set INTERNAL_API_KEY in .env}
     depends_on:
       migrate:
         condition: service_completed_successfully
+      elasticmq:
+        condition: service_started
+    restart: on-failure
 
+
+  sms-worker:
+    build: ./sms-service
+    command: ["python", "worker.py"]
+    environment:
+      SQS_ENDPOINT_URL: http://elasticmq:9324
+      SMS_QUEUE_NAME: sms-notifications
+      API_URL: http://api:8000
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY}
+    depends_on: 
+      elasticmq:
+        condition: service_started
+      api:
+        condition: service_started
+    restart: on-failure
+    
 volumes:
   pgdata:

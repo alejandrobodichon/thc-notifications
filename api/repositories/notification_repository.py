@@ -1,9 +1,7 @@
 
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.exceptions import NotificationAlreadyExists
 from models.notification import Notification
 
 
@@ -29,7 +27,6 @@ class NotificationRepository:
         await self._session.refresh(notification)
         return notification
 
-
-    async def delete(self, notification: Notification) -> None:
-        await self._session.delete(notification)
+    async def commit(self) -> None:
         await self._session.commit()
+   

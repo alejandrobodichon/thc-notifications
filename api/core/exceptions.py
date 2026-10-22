@@ -1,4 +1,3 @@
-from pydantic import ValidationError
 
 
 class AppError(Exception):
@@ -14,6 +13,7 @@ class ConflictError(AppError): ...
 class ForbiddenError(AppError): ...
 class ExternalServiceError(AppError): ...
 class UnauthorizedError(AppError): ...
+class UnprocessableError(AppError): ...
 
 
 class UserNotFound(NotFoundError):
@@ -43,9 +43,9 @@ class InvalidCredentials(UnauthorizedError):
 class NotAuthenticated(UnauthorizedError):
     message = "Could not validate credentials."
 
-class InvalidChannelData(ValidationError):
+class InvalidChannelData(AppError):
     message = "Invalid channel data."
-    message = "Could not validate credentials."
 
-class SmsGatewayUnavailable(ExternalServiceError):
-    message = "SMS gateway unavailable."
+
+class SmsQueueUnavailable(ExternalServiceError):
+    message = "SMS queue unavailable."

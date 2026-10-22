@@ -10,9 +10,10 @@ class Settings(BaseSettings):
 
     database_url: str
     
-    sms_service_url: str
+    sqs_endpoint_url: str
+    internal_api_key: str
     sms_service_timeout: float = 5.0
-
+    sms_queue_name: str = "sms-notifications"
     secret_key: SecretStr
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30

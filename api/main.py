@@ -1,22 +1,32 @@
 from contextlib import asynccontextmanager
 from typing import Annotated
 
-import httpx
+import aioboto3
 from fastapi import Depends, FastAPI, HTTPException, Request, status
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from clients.sms_queue_publisher import SmsQueuePublisher
+from core.config import settings
 from core.database import engine, get_db
 from core.error_handlers import register_exception_handlers
-from routers import auth, notifications, users
+from routers import auth, internal, notifications, users
 
+session = aioboto3.Session()
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    async with httpx.AsyncClient() as http_client:
-        app.state.http_client = http_client
+    async with session.client(
+        service_name="sqs",
+        endpoint_url=settings.sqs_endpoint_url,
+        region_name="us-east-1",
+        aws_access_key_id="local",
+        aws_secret_access_key="local",
+    ) as sqs:
+        queue = await sqs.get_queue_url(QueueName=settings.sms_queue_name)
+        app.state.sms_publisher = SmsQueuePublisher(sqs, queue["QueueUrl"])        
         yield
-    await engine.dispose()
+        await engine.dispose()
 
 app = FastAPI(lifespan=lifespan)
 register_exception_handlers(app)
@@ -24,6 +34,7 @@ register_exception_handlers(app)
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+app.include_router(internal.router, prefix="/internal", tags=["internal"], include_in_schema=False)
 
 @app.get("/health")
 async def health_check(db: Annotated[AsyncSession, Depends(get_db)]):

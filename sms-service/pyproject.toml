@@ -3,11 +3,15 @@ name = "sms-service"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
+    "aioboto3>=15.5.0",
     "fastapi[standard]>=0.154.0",
+    "pydantic-settings>=2.16.1",
 ]
 
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "mypy>=2.4.0",
     "pytest>=9.1.1",
+    "ruff>=0.17.1",
 ]

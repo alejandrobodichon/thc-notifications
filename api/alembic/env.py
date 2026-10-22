@@ -5,8 +5,8 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-import models.user  # noqa: F401
 import models.notification  # noqa: F401
+import models.user  # noqa: F401
 from alembic import context
 from core.config import settings
 from core.database import Base

@@ -1,11 +1,11 @@
-from core.enums import Channel
+from core.enums import Channel, DeliveryStatus
 from core.exceptions import (
     NotificationNotFound,
 )
 from core.strategy.notification_strategy import NotificationStrategy
 from models.notification import Notification
 from repositories.notification_repository import NotificationRepository
-from schemas.notification import NotificationBase
+from schemas.notification import DeliveryUpdate, NotificationBase
 
 
 class NotificationService:
@@ -30,6 +30,8 @@ class NotificationService:
         )
         
         saved_notification = await self._repo.save(notification)
+        await self._repo.commit()      
+
 
         send_status = await strategy.send_notification(saved_notification)
 
@@ -49,4 +51,13 @@ class NotificationService:
             raise NotificationNotFound()
 
         return notification
-        
+
+    async def update_delivery(self, notification_id: int, data: DeliveryUpdate) -> None:
+        notification = await self._repo.get_by_id(notification_id)
+        if notification is None:
+            raise NotificationNotFound()
+        if notification.delivery_status != DeliveryStatus.PENDING:
+            return 
+        notification.delivery_status = data.status
+        notification.sent_at = data.sent_at
+        await self._repo.save(notification)

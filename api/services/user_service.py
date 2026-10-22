@@ -59,7 +59,6 @@ class UserService:
     async def list_users(self) -> list[UserProfile]:
         users = await self._repo.get_all()
 
-
         return [
             UserProfile(id = user.id,
                         email= user.email,
@@ -68,7 +67,10 @@ class UserService:
         ]
 
 
-    async def update(self, user_id: int, data: UserUpdate) -> User:
+    async def update(self, user_id: int, data: UserUpdate, current_user_id: int) -> User:
+        if user_id != current_user_id:
+            raise NotAuthorized()
+        
         user = await self.get(user_id)
 
         if data.email is not None and data.email != user.email:
@@ -83,6 +85,9 @@ class UserService:
         
         return await self._repo.save(user)
 
-    async def delete(self, user_id: int) -> None:
+    async def delete(self, user_id: int, current_user_id: int) -> None:
+        if user_id!= current_user_id:
+            raise NotAuthorized()
         user = await self.get(user_id)
+       
         await self._repo.delete(user)

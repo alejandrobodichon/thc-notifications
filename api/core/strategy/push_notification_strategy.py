@@ -1,15 +1,15 @@
 
 from datetime import datetime
 
-
 from alembic.environment import Any
 from pydantic import ValidationError
 
 from core.enums import DeliveryStatus
 from core.exceptions import InvalidChannelData
 from core.strategy.notification_strategy import DeliveryResult, NotificationStrategy
-from schemas.notification import PushChannelData
 from models.notification import Notification
+from schemas.notification import PushChannelData
+
 
 class PushNotificationStrategy(NotificationStrategy):
     def validate(self, channel_data: dict[str, Any]) -> dict[str, Any]:

@@ -40,3 +40,8 @@ class EmailChannelData(BaseModel):
 
 class PushChannelData(BaseModel):
     device_token: str = Field(min_length=32, max_length=256)
+
+class DeliveryUpdate(BaseModel):
+    status: DeliveryStatus
+    sent_at: datetime | None = None
+    error: str | None = None

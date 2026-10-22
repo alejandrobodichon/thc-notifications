@@ -6,6 +6,7 @@ readme = "README.md"
 authors = [{ name = "Alejandro Bodichon" }]
 requires-python = ">=3.12"
 dependencies = [
+    "aioboto3>=15.5.0",
     "alembic>=1.19.1",
     "fastapi[standard]>=0.141.1",
     "psycopg[binary]>=3.3.4",
@@ -36,3 +37,7 @@ asyncio_mode = "auto"
 
 [tool.coverage.run]
 omit = ["tests/*"]
+
+[[tool.mypy.overrides]]
+module = ["aioboto3"]
+ignore_missing_imports = true
