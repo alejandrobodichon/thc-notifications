@@ -36,7 +36,9 @@ def get_user_service(
 UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 
-def get_notification_repository(db: Annotated[AsyncSession, Depends(get_db)]) -> NotificationRepository:
+def get_notification_repository(
+        db: Annotated[AsyncSession, Depends(get_db)]
+) -> NotificationRepository:
     return NotificationRepository(db)
 
 

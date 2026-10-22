@@ -26,11 +26,15 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('title', sa.String(length=50), nullable=False),
     sa.Column('content', sa.String(length=300), nullable=False),
-    sa.Column('channel', sa.Enum('email', 'sms', 'push', name='channel', native_enum=False, length=20), nullable=False),
+    sa.Column('channel', sa.Enum(
+        'email', 'sms', 'push', name='channel', native_enum=False, length=20), nullable=False
+        ),
     sa.Column('channel_data', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('sent_at', sa.DateTime(timezone=True), nullable=True),
-    sa.Column('delivery_status', sa.Enum('pending', 'sent', 'failed', name='deliverystatus', native_enum=False), nullable=False),
+    sa.Column('delivery_status', sa.Enum(
+        'pending', 'sent', 'failed', name='deliverystatus', native_enum=False), nullable=False
+        ),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')

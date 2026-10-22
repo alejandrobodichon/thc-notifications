@@ -24,7 +24,9 @@ async def get_user(user_id: int, service: UserServiceDep):
     return await service.get_profile(user_id)
 
 @router.patch("/{user_id}", response_model= UserPrivate)
-async def update_user(user_id: int, data: UserUpdate, current_user: CurrentUser, service: UserServiceDep):
+async def update_user(
+    user_id: int, data: UserUpdate, current_user: CurrentUser, service: UserServiceDep
+):
     return await service.update(user_id, data, current_user.id)
 
 @router.delete("/{user_id}", status_code= status.HTTP_204_NO_CONTENT)
