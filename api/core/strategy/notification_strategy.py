@@ -1,18 +1,9 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from datetime import datetime
 
 from alembic.environment import Any
 
-from core.enums import DeliveryStatus
-from models.notification import Notification
-
-
-@dataclass(frozen=True)
-class DeliveryResult:
-    status: DeliveryStatus
-    sent_at: datetime | None = None
-    error: str | None = None
+from domain.deliveryResult import DeliveryResult
+from domain.notification import Notification
 
 
 class NotificationStrategy(ABC):

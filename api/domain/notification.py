@@ -1,14 +1,21 @@
 from dataclasses import dataclass
+from datetime import datetime
+
+from alembic.environment import Any
+
+from core.enums import Channel, DeliveryStatus
 
 
 @dataclass(frozen=True)
 class Notification:
-    id: int
     title: str
     content: str
-    channel: str
-    channel_data: str
-    created_at: str
-    sent_at: str
-    delivery_status: str
-    user_id: str
+    user_id: int
+    channel: Channel
+    channel_data: dict[str, Any]
+
+    id: int | None = None
+    delivery_status: DeliveryStatus = DeliveryStatus.PENDING
+    created_at: datetime | None = None
+    sent_at: datetime | None = None    
+

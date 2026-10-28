@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from dependencies import InternalApiKeyDep, NotificationServiceDep
+from domain.deliveryResult import DeliveryResult
 from schemas.notification import DeliveryUpdate
 
 router = APIRouter()
@@ -13,4 +14,8 @@ async def update_delivery(
     _: InternalApiKeyDep,
     service: NotificationServiceDep,
 ) -> None:
-    await service.update_delivery(notification_id, data)
+    result = DeliveryResult(
+        status=data.status,
+        sent_at=data.sent_at,
+    )
+    await service.update_delivery(notification_id, result)

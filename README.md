@@ -1,6 +1,6 @@
-# Users & Pokémon API
+# Notifications API
 
-Users CRUD integrated with [PokeAPI](https://pokeapi.co). Each user can own Pokémon; only their ids are stored, and names are fetched from PokeAPI when reading users.
+Notification management system for authenticated users. Each user can create notifications and send them through email, SMS or push, each channel with its own delivery logic.
 
 ## Badges
 
@@ -8,23 +8,25 @@ Users CRUD integrated with [PokeAPI](https://pokeapi.co). Each user can own Pok�
 
 ## Decisions taken
 
-- Layered architecture: router → service → repository / client. Routers handle HTTP, services hold business rules, repositories access the database and the client talks to PokeAPI.
-- The PokeAPI client sits at the same level as the repositories: both are adapters to the outside. Only the service orchestrates them.
-- Domain exceptions grouped by category (not found, conflict, external service) and mapped to HTTP status codes in one place.
-- Pokémon ids stored in a relation table with a composite primary key, preventing duplicates. Adding Pokémon is idempotent.
-- Every Pokémon is validated against PokeAPI before saving: if one is invalid, nothing is stored.
-- PokeAPI requests are deduplicated and run concurrently. Listing users avoids N+1 queries.
-- Usernames and emails are normalized to lowercase; uniqueness is also enforced by database constraints.
+- Clean Architecture: dependencies point inwards. Routers (presentation) call services (use cases), which depend on core abstractions (enums, exceptions, the channel interface). Repositories and clients are adapters to the database and the queue.
+- Strategy pattern for channels: each channel implements `validate` and `send`, and is resolved through a registry. Adding a channel means adding one class, without modifying existing logic.
+- Channel-specific recipient data (email, phone number, device token) is stored in a JSONB column and validated by each channel before saving. New channels don't require migrations.
+- Each notification tracks its delivery status (`pending`, `sent`, `failed`) and send date.
+- SMS is sent asynchronously through a queue (SQS, ElasticMQ locally) consumed by a separate worker, which reports the result back through an internal endpoint protected with an API key. Failed messages are retried and then moved to a dead-letter queue.
+- If the queue is unavailable, the notification is stored as `failed` instead of failing the request.
+- JWT authentication. Users can only modify or delete their own account; requests on other ids return `403`, so ids can't be enumerated.
+- Domain exceptions grouped by category and mapped to HTTP status codes in one place.
 - Alembic migrations, applied by a dedicated service before the API starts.
-- Integration tests against a real PostgreSQL, with each test rolled back. PokeAPI is simulated at the transport level, so the real client code is tested.
-- Multi-stage Docker image running as a non-root user, with locked dependencies.
-- FastAPI was chosen for its async support, dependency injection and automatic OpenAPI docs.
+- Integration tests against a real PostgreSQL, with each test rolled back. The queue is replaced by a spy, so tests don't need SQS.
+- Multi-stage Docker images running as a non-root user, with locked dependencies. CI runs lint, type checking and tests for both services.
 
 ## Features
 
-- [x] Users CRUD.
-- [x] Add Pokémon to a user.
-- [x] Get users with their Pokémon (id and name).
+- [x] User registration and login with access token.
+- [x] Create a notification and send it through email, SMS or push.
+- [ ] List own notifications.
+- [ ] Update a notification.
+- [ ] Delete a notification.
 
 ## Table of contents
 
@@ -40,8 +42,10 @@ Users CRUD integrated with [PokeAPI](https://pokeapi.co). Each user can own Pok�
 - Language: Python 3.14
 - Framework: FastAPI
 - Database: PostgreSQL, SQLAlchemy (async), Alembic
+- Queue: Amazon SQS (ElasticMQ locally)
 - Package manager: uv
 - Tests: pytest
+- Lint and types: ruff, mypy
 - Containers: Docker, Docker Compose
 - CI: CircleCI
 
@@ -49,18 +53,21 @@ Users CRUD integrated with [PokeAPI](https://pokeapi.co). Each user can own Pok�
 
 API swagger: http://localhost:8000/docs
 
+Queue UI: http://localhost:9325
+
 ## Prerequisites
 
 - Docker and Docker Compose installed.
 - `make` (preinstalled on macOS and Linux).
-- No services running on localhost ports 8000 and 5432.
+- No services running on localhost ports 8000, 5432, 9324 and 9325.
 
 ## Run the app
 
-Copy the environment file and run the app:
+Copy the environment files and run the app:
 
 ```bash
 cp .env.example .env
+cp api/.env.example api/.env
 make up
 ```
 
@@ -71,18 +78,20 @@ Press `Control + C` to stop the app.
 ## Run tests
 
 ```bash
-make test
+docker compose up -d db
+docker compose exec db createdb -U postgres test_thc
+cd api && uv run pytest
+cd ../sms-service && uv run pytest
 ```
 
-Tests run in their own temporary database, so they don't touch the app data.
+Tests run in their own database, so they don't touch the app data.
 
 ## Things to improve
 
-- Authentication, so users can only modify their own data.
-- Cache PokeAPI responses, since Pokémon data doesn't change.
-- Retries with backoff when PokeAPI fails.
-- If PokeAPI is down, listing users fails; it could return only the ids instead.
-- Build the Docker image in CI.
+- Outbox pattern, so a crash between saving and publishing can't leave a notification without its queue message.
+- A periodic job that marks notifications stuck in `pending` as `failed`.
+- Send email and push asynchronously through queues, like SMS.
+- Replace the simulated delivery with real providers.
 
 ## Author
 

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.config import settings
 from core.enums import DeliveryStatus
-from models.notification import Notification
+from models.notification import NotificationModel
 from tests.test_notifications import SMS_PAYLOAD
 
 API_KEY_HEADER = {"X-API-Key": settings.internal_api_key}
@@ -17,8 +17,8 @@ async def create_pending_sms(client: AsyncClient, auth_headers: dict) -> int:
     return response.json()["id"]
 
 
-async def get_notification(db_session: AsyncSession, notification_id: int) -> Notification:
-    notification = await db_session.get(Notification, notification_id, populate_existing=True)
+async def get_notification(db_session: AsyncSession, notification_id: int) -> NotificationModel:
+    notification = await db_session.get(NotificationModel, notification_id, populate_existing=True)
     assert notification is not None
     return notification
 

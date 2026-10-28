@@ -7,12 +7,12 @@ from core.exceptions import InvalidChannelData
 from core.strategy.email_notification_strategy import EmailNotificationStrategy
 from core.strategy.push_notification_strategy import PushNotificationStrategy
 from core.strategy.sms_notification_strategy import SMS_MAX_LENGTH, SmsNotificationStrategy
-from models.notification import Notification
+from models.notification import NotificationModel
 from tests.conftest import FakeSmsPublisher
 
 
-def make_notification(channel: Channel, channel_data: dict, content: str = "Hello") -> Notification:
-    return Notification(
+def make_notification(channel: Channel, channel_data: dict, content: str = "Hello") -> NotificationModel:
+    return NotificationModel(
         id=1,
         title="Title",
         content=content,

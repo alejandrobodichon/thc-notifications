@@ -14,7 +14,7 @@ def _enum_values(enum_cls: type[StrEnum]) -> list[str]:
     return [m.value for m in enum_cls]
 
 
-class Notification(Base):
+class NotificationModel(Base):
     __tablename__ = "notifications"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     title: Mapped[str] = mapped_column(String(50))

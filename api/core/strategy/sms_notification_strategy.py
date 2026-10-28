@@ -5,9 +5,10 @@ from pydantic import ValidationError
 
 from clients.sms_queue_publisher import SmsQueuePublisher
 from core.enums import DeliveryStatus
-from core.exceptions import InvalidChannelData, SmsQueueUnavailable
-from core.strategy.notification_strategy import DeliveryResult, NotificationStrategy
-from models.notification import Notification
+from core.exceptions import InvalidChannelData, NotificationNotPersisted, SmsQueueUnavailable
+from core.strategy.notification_strategy import NotificationStrategy
+from domain.deliveryResult import DeliveryResult
+from domain.notification import Notification
 from schemas.notification import SmsChannelData
 
 SMS_MAX_LENGTH = 160
@@ -26,6 +27,8 @@ class SmsNotificationStrategy(NotificationStrategy):
         return data.model_dump()
 
     async def send_notification(self, notification: Notification) -> DeliveryResult:
+        if notification.id is None:
+            raise NotificationNotPersisted()
         phone = notification.channel_data["phone_number"]
         message = notification.content[:SMS_MAX_LENGTH]
         try:

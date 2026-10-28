@@ -16,10 +16,11 @@ class NotificationBase(BaseModel):
 class NotificationCreate(NotificationBase):
     pass
 
-
 class NotificationUpdate(BaseModel):
-    title: str | None = Field(default=None, min_length=1, max_length=50)
-    content: str | None = Field(default=None, min_length=1, max_length=300)
+    title: str|None = Field(default=None, min_length=1, max_length=50)
+    content: str|None = Field(default=None, min_length=1, max_length=300)
+    channel: Channel|None = Field(default=None)
+    channel_data: dict[str, Any]|None = Field(default=None)
 
 
 class NotificationPublic(NotificationBase):

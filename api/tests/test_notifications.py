@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from models.notification import Notification
+from models.notification import NotificationModel
 from tests.conftest import FakeSmsPublisher
 
 EMAIL_PAYLOAD = {
@@ -27,7 +27,7 @@ PUSH_PAYLOAD = {
 
 
 async def count_notifications(db_session: AsyncSession) -> int:
-    return await db_session.scalar(select(func.count()).select_from(Notification)) or 0
+    return await db_session.scalar(select(func.count()).select_from(NotificationModel)) or 0
 
 
 @pytest.mark.anyio
@@ -99,7 +99,7 @@ async def test_create_stores_owner_from_token(
 ):
     response = await client.post("/notifications", json=EMAIL_PAYLOAD, headers=auth_headers)
 
-    notification = await db_session.get(Notification, response.json()["id"])
+    notification = await db_session.get(NotificationModel, response.json()["id"])
     assert notification is not None
     assert notification.user_id == user["id"]
 

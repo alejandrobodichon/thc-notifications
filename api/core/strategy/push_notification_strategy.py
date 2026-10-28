@@ -5,8 +5,9 @@ from pydantic import ValidationError
 
 from core.enums import DeliveryStatus
 from core.exceptions import InvalidChannelData
-from core.strategy.notification_strategy import DeliveryResult, NotificationStrategy
-from models.notification import Notification
+from core.strategy.notification_strategy import NotificationStrategy
+from domain.deliveryResult import DeliveryResult
+from domain.notification import Notification
 from schemas.notification import PushChannelData
 
 
