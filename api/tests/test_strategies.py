@@ -11,7 +11,8 @@ from models.notification import NotificationModel
 from tests.conftest import FakeSmsPublisher
 
 
-def make_notification(channel: Channel, channel_data: dict, content: str = "Hello") -> NotificationModel:
+def make_notification(channel: Channel, channel_data: dict, content: str = "Hello"
+) -> NotificationModel:
     return NotificationModel(
         id=1,
         title="Title",
