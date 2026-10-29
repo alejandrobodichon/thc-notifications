@@ -7,8 +7,8 @@ from core.exceptions import (
     NotificationNotPersisted,
 )
 from core.strategy.notification_strategy import NotificationStrategy
-from domain.notification import  Notification
 from domain.deliveryResult import DeliveryResult
+from domain.notification import Notification
 from repositories.notification_repository import NotificationRepository
 from schemas.notification import NotificationBase, NotificationUpdate
 
