@@ -23,8 +23,10 @@ class UnauthorizedError(AppError): ...
 
 class UnprocessableError(AppError): ...
 
+
 class InternalError(AppError):
     message = "An internal error occurred."
+
 
 class UserNotFound(NotFoundError):
     message = "User not found."
@@ -69,8 +71,10 @@ class InvalidChannelData(AppError):
 class SmsQueueUnavailable(ExternalServiceError):
     message = "SMS queue unavailable."
 
+
 class NotificationNotEditable(ConflictError):
     message = "Notification cannot be edited because it is not in a failed state."
+
 
 class NotificationNotPersisted(InternalError):
     message = "Notification not persisted"

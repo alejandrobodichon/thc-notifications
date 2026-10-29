@@ -17,5 +17,4 @@ class Notification:
     id: int | None = None
     delivery_status: DeliveryStatus = DeliveryStatus.PENDING
     created_at: datetime | None = None
-    sent_at: datetime | None = None    
-
+    sent_at: datetime | None = None
